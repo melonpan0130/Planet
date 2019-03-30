@@ -29,6 +29,5 @@ public:
 	}
 
 	void Draw();
-	void DrawR();
 };
 

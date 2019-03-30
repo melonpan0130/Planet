@@ -54,7 +54,7 @@
     <ClInclude Include="CBackground.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="pcPM.h">
+    <ClInclude Include="CTrap.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -92,7 +92,7 @@
     <ClCompile Include="CBackground.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="pcPM.cpp">
+    <ClCompile Include="CTrap.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

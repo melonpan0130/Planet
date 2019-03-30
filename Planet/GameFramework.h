@@ -42,6 +42,8 @@ public:
 
 	void BGRender();
 	void BGUpdate(float dt);
+
+	void JumpUpdate(float dt);
 	
 protected:
 	LPDIRECT3D9 m_pD3D;
@@ -54,12 +56,13 @@ protected:
 	D3DXVECTOR3 m_PCPos;
 	D3DXVECTOR3 m_AlienPos;
 	D3DXVECTOR3 m_AlienDir;
+	D3DXVECTOR3 m_TrapPos[17];
+	D3DXVECTOR3 m_TrapDir;
 
 	// class 사용
 	CInput* m_Input;
 	CText* m_Text;
 	CTexture* m_Texture;
-	CSprite* m_Sprite[2];
 	bool m_Pause; // pause
 	DWORD m_dwPrevTime;
 	bool m_AlienRightDir; // alien의 방향
@@ -71,11 +74,18 @@ protected:
 
 	CGameObject* m_Player;
 	CGameObject* m_Alien;
+	CGameObject* m_Trap[10];
 
 	// 배경
 	CBackground* m_BGsky;
 	CBackground* m_BGmountain;
 	CBackground* m_BGground;
 
-	pcPM* m_pcPM;
+	bool m_Jump;
+	bool m_2ndJump; // 두번째 점프중인가
+	bool m_Falling; // 떨어지는 중
+	float m_fJumpPower; // 1단 12, 2단 8
+	float m_fBaseHeight; // 
+	float m_PrevHeight; // 이전 높이
+	float m_fJumpTime;
 };

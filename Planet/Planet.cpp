@@ -19,7 +19,7 @@ WCHAR szWindowClass[MAX_LOADSTRING];            // 기본 창 클래스 이름�
 
 // 이 코드 모듈에 포함된 함수의 선언을 전달합니다:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
-BOOL                InitInstance(HINSTANCE, int, HWND&);
+BOOL                InitInstance(HINSTANCE, int, HWND&, bool);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 
 GameFramework* g_pGameFramework = NULL;
@@ -40,7 +40,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 	HWND hWnd;
     // 응용 프로그램 초기화를 수행합니다:
-	if (!InitInstance(hInstance, nCmdShow, hWnd))
+	if (!InitInstance(hInstance, nCmdShow, hWnd, false))
 	{
 		return FALSE;
 	}
@@ -112,12 +112,24 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 //        이 함수를 통해 인스턴스 핸들을 전역 변수에 저장하고
 //        주 프로그램 창을 만든 다음 표시합니다.
 //
-BOOL InitInstance(HINSTANCE hInstance, int nCmdShow, HWND& rHwnd)
+BOOL InitInstance(HINSTANCE hInstance, int nCmdShow, HWND& rHwnd, bool bFullscreen)
 {
    hInst = hInstance; // 인스턴스 핸들을 전역 변수에 저장합니다.
 
-   HWND hWnd = CreateWindowW(szWindowClass, TEXT("HELLO PLANET"), WS_OVERLAPPEDWINDOW,
-      CW_USEDEFAULT, CW_USEDEFAULT, 1080, 720, nullptr, nullptr, hInstance, nullptr);
+   HWND hWnd;
+
+   if (bFullscreen == false)
+   {
+	   hWnd = CreateWindowW(szWindowClass, TEXT("HELLO PLANET")
+		   , WS_OVERLAPPEDWINDOW
+		   , 0, 0, 1080, 720
+		   , nullptr, nullptr, hInstance, nullptr);
+   }
+   else {
+	   hWnd = CreateWindowW(szWindowClass, TEXT("HELLO PLANET")
+		   , WS_EX_TOPMOST | WS_POPUP
+		   , 0, 0, 1920, 1080, nullptr, nullptr, hInstance, nullptr);
+   }
 
    if (!hWnd)
    {

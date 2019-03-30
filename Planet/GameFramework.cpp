@@ -14,7 +14,6 @@
 #include "CPayloadManager.h"
 #include "CGameObject.h"
 #include "CBackground.h"
-#include "pcPM.h"
 
 #include "GameFramework.h"
 
@@ -36,7 +35,7 @@ GameFramework::GameFramework()
 
 	// 스프라이트 객체 인터페이스 정의
 	m_Texture;
-	m_Sprite[2]; // 0: pc, 1~19: Ailen
+	// m_Sprite[2]; // 0: pc, 1~19: Ailen
 	m_Pause = false;
 	m_dwPrevTime = 0;
 	m_AlienShootTimer = 0;
@@ -46,7 +45,7 @@ GameFramework::GameFramework()
 	m_BGmountain = NULL;
 	m_BGground = NULL;
 
-	m_pcPM = NULL;
+	m_Jump = false;
 }
 
 GameFramework::~GameFramework()
@@ -94,18 +93,13 @@ bool GameFramework::InitFramework(HWND hWnd, HINSTANCE hInstance)
 	// alien motion
 	m_AlienDir = D3DXVECTOR3(1, 0, 0);
 
+	PlaySound(_T("..//Alarm10.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
+
 	return true;
 }
 
 void GameFramework::ReleaseFramework()
 {
-	delete m_PCPayloadManager;
-	delete m_AlienPayloadManager;
-
-	delete m_BGground;
-	delete m_BGmountain;
-	delete m_BGsky;
-
 	delete m_Input;
 	delete m_Text;
 	delete m_Texture;
@@ -126,9 +120,9 @@ void GameFramework::LoadTextures()
 	m_Texture->LoadTexture(-1, TEXT("../img/ufo.png"));
 	m_Texture->LoadTexture(-1, TEXT("../img/fire.png"));
 	m_Texture->LoadTexture(-1, TEXT("../img/lightning.png"));
-	m_Texture->LoadTexture(-1, TEXT("../img/sky.jpg"));
-	m_Texture->LoadTexture(-1, TEXT("../img/mountain2.png"));
-	m_Texture->LoadTexture(-1, TEXT("../img/ground.jpg"));
+	m_Texture->LoadTexture(-1, TEXT("../img/moon.png"));
+	m_Texture->LoadTexture(-1, TEXT("../img/mountain.png"));
+	m_Texture->LoadTexture(-1, TEXT("../img/ground.png"));
 	m_Texture->LoadTexture(-1, TEXT("../img/none.png"));
 	m_Texture->LoadTexture(-1, TEXT("../img/missle.png"));
 
@@ -144,10 +138,13 @@ void GameFramework::InitGameData()
 	D3DXVECTOR3 pcPos = D3DXVECTOR3(m_ScreenWidth*0.5f, 500, 0);
 	const float pcSpeed = 300.f;
 	const float AlienSpeed = 100.f;
+	const float TrapSpeed = 300.f;
 
-	m_Input;
-	m_Text;
-
+	m_Jump = false;
+	m_2ndJump = false;
+	m_fJumpTime = 0.f;
+	m_fJumpPower = 12.f;
+	
 	m_dwPrevTime = GetTickCount();
 	m_AlienRightDir = true;
 
@@ -166,6 +163,16 @@ void GameFramework::InitGameData()
 		, m_AlienPos
 		, AlienSpeed);
 	m_Alien->SetAlive(true);
+
+	for (int i = 0; i < 10; i++)
+	{
+		m_Trap[i] = new CGameObject(m_pD3DDevice
+			, m_Texture->GetTexture(1)
+			, D3DXVECTOR3(64, 64, 0)
+			, m_TrapPos
+			, TrapSpeed);
+		// m_TrapPos[i] = D3DXVECTOR3(0, 0, 0)
+	}
 
 	// shoot sprite
 	m_PCPayloadManager = new CPayloadManager(m_pD3DDevice
@@ -186,24 +193,21 @@ void GameFramework::InitGameData()
 	m_BGsky = new CBackground(m_pD3DDevice
 		, m_Texture->GetTexture(4)
 		, D3DXVECTOR3(0, 0, 0)
-		, 1024
+		, 1080
 		, 100);
 
 	m_BGmountain = new CBackground(m_pD3DDevice
 		, m_Texture->GetTexture(5)
-		, D3DXVECTOR3(0, 300, 0)
-		, 600
+		, D3DXVECTOR3(0, 55, 0)
+		, 1080
 		, 150);
 
 	m_BGground = new CBackground(m_pD3DDevice
 		, m_Texture->GetTexture(6)
-		, D3DXVECTOR3(0, 500, 0)
-		, 626
+		, D3DXVECTOR3(0, 70, 0)
+		, 1080
 		, 300);
 
-	// m_pcPM = new pcPM(m_pD3DDevice);
-
-	
 }
 
 void GameFramework::ReleaseGameData()
@@ -233,25 +237,23 @@ void GameFramework::GameUpdate(UINT& escapecode)
 	}
 	else
 	{
-		m_Input->ReadKeyboard();
+		m_Input->ReadKeyboard(); // 키보드 버퍼 읽어오기
 
-		if (m_Input->IsPausePressed())
+		if (m_Input->IsPausePressed()) // pause 체크
 			m_Pause = !m_Pause;
 
-		DWORD dwCurTime = GetTickCount();
+		DWORD dwCurTime = GetTickCount(); // 프레임 시간 계산 부분
 		DWORD dwDt = dwCurTime - m_dwPrevTime;
 		float fDt = (float)(dwDt)*0.001f;
 		m_dwPrevTime = dwCurTime;
+
+		D3DXVECTOR3 pcpos = m_Player->GetPosition();
+
 		if (m_Pause == false)
 		{ // start
-			if (m_Pause == false && m_Input->IsUpPressed()) // 미사일
-				// m_pcPM->normalOnfire(m_Player->GetPosition());
-				m_PCPayloadManager->OnFire(m_Player->GetPosition());
-			if (m_Pause == false && m_Input->IsSpasePressed()) // 호밍 미사일
-				// m_pcPM->homingOnfire(m_Player->GetPosition());
-				m_PCPayloadManager->OnFire(m_Player->GetPosition());
+			if (m_Pause == false && m_Input->IsSpasePressed()) //3단
+				m_PCPayloadManager->OnFire3( pcpos );			
 			Update(fDt);
-			
 		}
 	}
 }
@@ -269,6 +271,7 @@ void GameFramework::Update(float dt)
 	m_Player->SetDirection(pcDir.x, pcDir.y);
 	m_Player->Update(dt);
 
+	m_PCPos = m_Player->GetPosition();
 	// 화면 이동 제한
 	m_Player->ArrangePosition(175.f, m_ScreenWidth - 175.f);
 
@@ -285,6 +288,7 @@ void GameFramework::Update(float dt)
 	ProjectileUpdate(dt); // 총알 날리기
 	PlayerCollisionUpadte(dt); // 사용자 맞음?
 	AlienCollisionUpdate(dt); // 외계인 맞음??
+	JumpUpdate(dt); // jump
 	BGUpdate(dt); // 배경화면
 }
 
@@ -330,6 +334,7 @@ void GameFramework::ProjectileUpdate(float dt)
 	// pc총알 발사
 	m_PCPayloadManager->Update(dt);
 	m_AlienPayloadManager->Update(dt);
+	// m_PCPayloadManager->HomingUpdate(dt, m_Alien->GetPosition());
 
 	int delta_time = GetTickCount() - m_AlienShootTimer;
 	
@@ -339,7 +344,6 @@ void GameFramework::ProjectileUpdate(float dt)
 
 		if (m_Alien->GetAlive())
 		{
-
 			m_AlienPayloadManager->OnFire(m_Alien->GetPosition());
 		}
 	}
@@ -352,7 +356,7 @@ void GameFramework::AlienCollisionUpdate(float dt)
 		(m_PCPayloadManager->IsCollision(m_Alien->GetPosition(), (64.f + 16.f))||
 			m_PCPayloadManager->IsCollision(m_Alien->GetPosition(), (64.f + 16.f))))
 	{
-		m_Alien->SetPosition(D3DXVECTOR3(64.f, 64.f, 0));	
+		m_Alien->SetPosition(D3DXVECTOR3(64.f, 64.f, 0));
 	}
 }
 
@@ -374,7 +378,50 @@ void GameFramework::BGRender()
 
 void GameFramework::BGUpdate(float dt)
 {
-	m_BGsky->Update(dt); // 옹옹 ㅜㅜ
+	m_BGsky->Update(dt);
 	m_BGmountain->Update(dt);
 	m_BGground->Update(dt);
+}
+
+void GameFramework::JumpUpdate(float dt)
+{
+	D3DXVECTOR3 pcpos = m_Player->GetPosition();
+
+	if (m_Input->IsKeyPressed(DIK_UPARROW))
+	{
+		if (m_Jump == false)
+		{
+			m_Jump = true;
+			m_2ndJump = false;
+			m_fJumpTime = 0.f;
+			m_fJumpPower = 12.f;
+			m_fBaseHeight = pcpos.y;
+			m_PrevHeight = pcpos.y;
+		}
+		else if (m_Falling == true && m_2ndJump == false)
+		{
+			m_fJumpPower = 8.f;
+			m_fJumpTime = 0.f;
+			m_2ndJump = true;
+		}
+	}
+
+	if (m_Jump == true)
+	{
+		m_fJumpTime += (dt * 4.f);
+		float height = m_fJumpPower + (-4.9f*(m_fJumpTime * m_fJumpTime));
+
+		pcpos.y -= height;
+		m_Falling = (pcpos.y - m_PrevHeight < 0.f) ? false : true;
+		// 점프 뒤 최고점에서 떨어지는 것 체크
+
+		if (pcpos.y > m_fBaseHeight)
+		{
+			pcpos.y = m_fBaseHeight;
+			m_Jump = false;
+		}
+		m_PrevHeight = pcpos.y;
+		// 계산 후 높이값. 다음 계산 시 상승/하강 체크 하기 위함
+		m_Player->SetPosition(pcpos);
+	}
 }

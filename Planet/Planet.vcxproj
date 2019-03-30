@@ -159,8 +159,8 @@
     <ClInclude Include="CSprite.h" />
     <ClInclude Include="CText.h" />
     <ClInclude Include="CTexture.h" />
+    <ClInclude Include="CTrap.h" />
     <ClInclude Include="GameFramework.h" />
-    <ClInclude Include="pcPM.h" />
     <ClInclude Include="Planet.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
@@ -175,8 +175,8 @@
     <ClCompile Include="CSprite.cpp" />
     <ClCompile Include="CText.cpp" />
     <ClCompile Include="CTexture.cpp" />
+    <ClCompile Include="CTrap.cpp" />
     <ClCompile Include="GameFramework.cpp" />
-    <ClCompile Include="pcPM.cpp" />
     <ClCompile Include="Planet.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

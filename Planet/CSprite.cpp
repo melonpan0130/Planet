@@ -41,11 +41,3 @@ void CSprite::Draw()
 	m_pSpr->End();
 }
 
-
-
-void CSprite::DrawR()
-{
-	m_pSpr->Begin(D3DXSPRITE_ALPHABLEND);
-	m_pSpr->Draw(m_pTexture, NULL, &m_Center, &m_Pos, m_Color);
-	m_pSpr->End();
-}
