@@ -23,7 +23,7 @@ CBackground::CBackground(LPDIRECT3DDEVICE9 pD3DDevice
 CBackground::~CBackground()
 {
 	for (int i = 0; i < 3; i++)
-	{
+	{	
 		if (m_Spr[i] != NULL) 
 		{
 			delete m_Spr[i];

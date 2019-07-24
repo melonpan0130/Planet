@@ -52,11 +52,12 @@ protected:
 	float m_ScreenWidth;
 	float m_ScreenHeight;
 
-	//umm,,
+	//player
 	D3DXVECTOR3 m_PCPos;
 	D3DXVECTOR3 m_AlienPos;
 	D3DXVECTOR3 m_AlienDir;
-	D3DXVECTOR3 m_TrapPos[17];
+	D3DXVECTOR3 m_TrapPos[10];
+
 	D3DXVECTOR3 m_TrapDir;
 
 	// class 사용
@@ -77,6 +78,7 @@ protected:
 	CGameObject* m_Trap[10];
 
 	// 배경
+	CBackground* m_BGmoon;
 	CBackground* m_BGsky;
 	CBackground* m_BGmountain;
 	CBackground* m_BGground;

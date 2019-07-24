@@ -28,6 +28,7 @@ CGameObject::CGameObject(LPDIRECT3DDEVICE9 pD3DDevice
 
 CGameObject::~CGameObject()
 {
+	Release();
 }
 
 void CGameObject::InitGameObject(LPDIRECT3DDEVICE9 pD3DDevice
@@ -56,7 +57,7 @@ void CGameObject::Release()
 
 void CGameObject::Update(float dt)
 {
-	m_Pos += m_Dir * m_Speed*dt;// *(9.8 / 2)
+	m_Pos += m_Dir * m_Speed * dt;
 }
 
 void CGameObject::Render()

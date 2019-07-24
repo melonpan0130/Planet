@@ -84,7 +84,6 @@ bool CInput::ReadKeyboard()
 		else return false;
 	}
 	return true;
-	return false;
 }
 
 bool CInput::IsEscapePressed()

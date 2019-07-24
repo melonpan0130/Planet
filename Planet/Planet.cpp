@@ -1,6 +1,4 @@
 ﻿// Planet.cpp : 응용 프로그램에 대한 진입점을 정의합니다.
-//
-
 #include "stdafx.h"
 #include "Planet.h"
 
@@ -118,7 +116,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow, HWND& rHwnd, bool bFullscre
 
    HWND hWnd;
 
-   if (bFullscreen == false)
+   if (!bFullscreen)
    {
 	   hWnd = CreateWindowW(szWindowClass, TEXT("HELLO PLANET")
 		   , WS_OVERLAPPEDWINDOW
@@ -128,7 +126,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow, HWND& rHwnd, bool bFullscre
    else {
 	   hWnd = CreateWindowW(szWindowClass, TEXT("HELLO PLANET")
 		   , WS_EX_TOPMOST | WS_POPUP
-		   , 0, 0, 1920, 1080, nullptr, nullptr, hInstance, nullptr);
+		   , 0, 0, 1920, 1080
+		   , nullptr, nullptr, hInstance, nullptr);
    }
 
    if (!hWnd)

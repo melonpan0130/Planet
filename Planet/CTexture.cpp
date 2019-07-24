@@ -12,6 +12,7 @@ CTexture::CTexture(LPDIRECT3DDEVICE9 pD3DDevice)
 
 CTexture::~CTexture()
 {
+	ReleaseAll();
 }
 
 int CTexture::LoadTexture(int slot, const TCHAR* filename)
@@ -28,7 +29,7 @@ int CTexture::LoadTexture(int slot, const TCHAR* filename)
 		, D3DFMT_A8R8G8B8
 		, D3DPOOL_DEFAULT
 		, D3DX_FILTER_NONE
-		, D3DX_DEFAULT
+		, D3DX_DEFAULT // null
 		, D3DCOLOR_XRGB(0, 0, 0)
 		, NULL, NULL, &m_pTextures[slot]);
 	

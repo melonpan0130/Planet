@@ -38,6 +38,8 @@ public:
 	}
 
 	void SetDir(const D3DXVECTOR3& dir) { m_Dir = dir; }
+
+
 	void Update(float dt);
 	void Draw();
 };

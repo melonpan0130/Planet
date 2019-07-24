@@ -27,20 +27,19 @@ GameFramework::GameFramework()
 {
 	m_pD3D = NULL;
 	m_pD3DDevice = NULL;
-	// D3DCOLOR g_ClearColor = D3DCOLOR_XRGB(0, 0, 255);
 
+	// D3DCOLOR g_ClearColor = D3DCOLOR_XRGB(0, 0, 255);
 	m_PCPos = D3DXVECTOR3(320, 400, 0);
 	m_AlienPos = D3DXVECTOR3(100, 100, 0);
 
-
 	// 스프라이트 객체 인터페이스 정의
-	m_Texture;
 	// m_Sprite[2]; // 0: pc, 1~19: Ailen
 	m_Pause = false;
 	m_dwPrevTime = 0;
 	m_AlienShootTimer = 0;
 
-	// 배경ㄱ
+	// 배경
+	m_BGmoon = NULL;
 	m_BGsky = NULL;
 	m_BGmountain = NULL;
 	m_BGground = NULL;
@@ -63,8 +62,8 @@ bool GameFramework::InitFramework(HWND hWnd, HINSTANCE hInstance)
 
 	int ClientWidth = rc.right - rc.left + 1;
 	int ClientHeight = rc.bottom - rc.top + 1;
-	m_ScreenWidth = (float)ClientWidth;
-	m_ScreenHeight = (float)ClientHeight;
+	m_ScreenWidth = 1920;
+	m_ScreenHeight = 1080;
 
 	D3DPRESENT_PARAMETERS d3dpp;
 	ZeroMemory(&d3dpp, sizeof(d3dpp));
@@ -74,8 +73,8 @@ bool GameFramework::InitFramework(HWND hWnd, HINSTANCE hInstance)
 	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
 	d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
 	d3dpp.BackBufferCount = 1;
-	d3dpp.BackBufferWidth = ClientWidth;
-	d3dpp.BackBufferHeight = ClientHeight;
+	d3dpp.BackBufferWidth = 1920;
+	d3dpp.BackBufferHeight = 1080;
 
 	if (m_pD3D->CreateDevice(D3DADAPTER_DEFAULT
 		, D3DDEVTYPE_HAL
@@ -93,7 +92,7 @@ bool GameFramework::InitFramework(HWND hWnd, HINSTANCE hInstance)
 	// alien motion
 	m_AlienDir = D3DXVECTOR3(1, 0, 0);
 
-	PlaySound(_T("..//Alarm10.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
+	// PlaySound(_T("..//Alarm10.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
 
 	return true;
 }
@@ -120,11 +119,12 @@ void GameFramework::LoadTextures()
 	m_Texture->LoadTexture(-1, TEXT("../img/ufo.png"));
 	m_Texture->LoadTexture(-1, TEXT("../img/fire.png"));
 	m_Texture->LoadTexture(-1, TEXT("../img/lightning.png"));
-	m_Texture->LoadTexture(-1, TEXT("../img/moon.png"));
+	m_Texture->LoadTexture(-1, TEXT("../img/sky.png"));
 	m_Texture->LoadTexture(-1, TEXT("../img/mountain.png"));
 	m_Texture->LoadTexture(-1, TEXT("../img/ground.png"));
 	m_Texture->LoadTexture(-1, TEXT("../img/none.png"));
 	m_Texture->LoadTexture(-1, TEXT("../img/missle.png"));
+	m_Texture->LoadTexture(-1, TEXT("../img/moon.png"));
 
 	// pcPM loadtextures함수 넣기
 }
@@ -135,7 +135,7 @@ void GameFramework::ReleaseTextures()
 
 void GameFramework::InitGameData()
 {
-	D3DXVECTOR3 pcPos = D3DXVECTOR3(m_ScreenWidth*0.5f, 500, 0);
+	D3DXVECTOR3 pcPos = D3DXVECTOR3(m_ScreenWidth*0.5f, 850, 0);
 	const float pcSpeed = 300.f;
 	const float AlienSpeed = 100.f;
 	const float TrapSpeed = 300.f;
@@ -151,7 +151,7 @@ void GameFramework::InitGameData()
 	//player
 	m_Player = new CGameObject(m_pD3DDevice
 		, m_Texture->GetTexture(0)
-		, D3DXVECTOR3(66, 72.5, 0)
+		, D3DXVECTOR3(66, 72, 0)
 		, pcPos
 		, pcSpeed);
 	m_Player->SetAlive(true);
@@ -164,15 +164,7 @@ void GameFramework::InitGameData()
 		, AlienSpeed);
 	m_Alien->SetAlive(true);
 
-	for (int i = 0; i < 10; i++)
-	{
-		m_Trap[i] = new CGameObject(m_pD3DDevice
-			, m_Texture->GetTexture(1)
-			, D3DXVECTOR3(64, 64, 0)
-			, m_TrapPos
-			, TrapSpeed);
-		// m_TrapPos[i] = D3DXVECTOR3(0, 0, 0)
-	}
+	//trap
 
 	// shoot sprite
 	m_PCPayloadManager = new CPayloadManager(m_pD3DDevice
@@ -189,23 +181,30 @@ void GameFramework::InitGameData()
 		, D3DXVECTOR3(0.f, 1.f, 0.f)
 		, D3DXVECTOR2(m_ScreenWidth, m_ScreenHeight));
 
+
 	// Background
+	m_BGmoon = new CBackground(m_pD3DDevice,
+		m_Texture->GetTexture(8)
+		, D3DXVECTOR3(0, 0, 0)
+		, 1920
+		, 5);
+
 	m_BGsky = new CBackground(m_pD3DDevice
 		, m_Texture->GetTexture(4)
 		, D3DXVECTOR3(0, 0, 0)
-		, 1080
-		, 100);
+		, 1920
+		, 15);
 
 	m_BGmountain = new CBackground(m_pD3DDevice
 		, m_Texture->GetTexture(5)
-		, D3DXVECTOR3(0, 55, 0)
-		, 1080
-		, 150);
+		, D3DXVECTOR3(0, 0, 0)
+		, 1920
+		, 50);
 
 	m_BGground = new CBackground(m_pD3DDevice
 		, m_Texture->GetTexture(6)
-		, D3DXVECTOR3(0, 70, 0)
-		, 1080
+		, D3DXVECTOR3(0, 0, 0)
+		, 1920
 		, 300);
 
 }
@@ -215,6 +214,7 @@ void GameFramework::ReleaseGameData()
 	delete m_BGground;
 	delete m_BGmountain;
 	delete m_BGsky;
+	delete m_BGmoon;
 	delete m_PCPayloadManager;
 	delete m_AlienPayloadManager;
 
@@ -247,12 +247,12 @@ void GameFramework::GameUpdate(UINT& escapecode)
 		float fDt = (float)(dwDt)*0.001f;
 		m_dwPrevTime = dwCurTime;
 
-		D3DXVECTOR3 pcpos = m_Player->GetPosition();
-
 		if (m_Pause == false)
 		{ // start
 			if (m_Pause == false && m_Input->IsSpasePressed()) //3단
-				m_PCPayloadManager->OnFire3( pcpos );			
+				m_PCPayloadManager->OnFire3( m_Player->GetPosition());
+				// m_PCPayloadManager->OnHoming(m_Player->GetPosition(), m_Alien->GetPosition());
+			
 			Update(fDt);
 		}
 	}
@@ -271,7 +271,7 @@ void GameFramework::Update(float dt)
 	m_Player->SetDirection(pcDir.x, pcDir.y);
 	m_Player->Update(dt);
 
-	m_PCPos = m_Player->GetPosition();
+	m_PCPos = m_Player->GetPosition();//??
 	// 화면 이동 제한
 	m_Player->ArrangePosition(175.f, m_ScreenWidth - 175.f);
 
@@ -353,8 +353,7 @@ void GameFramework::ProjectileUpdate(float dt)
 void GameFramework::AlienCollisionUpdate(float dt)
 {
 	if ((m_Alien->GetAlive() == true) &&
-		(m_PCPayloadManager->IsCollision(m_Alien->GetPosition(), (64.f + 16.f))||
-			m_PCPayloadManager->IsCollision(m_Alien->GetPosition(), (64.f + 16.f))))
+		m_PCPayloadManager->IsCollision(m_Alien->GetPosition(), (64.f + 16.f)))
 	{
 		m_Alien->SetPosition(D3DXVECTOR3(64.f, 64.f, 0));
 	}
@@ -372,6 +371,7 @@ void GameFramework::PlayerCollisionUpadte(float dt)
 void GameFramework::BGRender()
 {
 	m_BGsky->Render();
+	m_BGmoon->Render();
 	m_BGmountain->Render();
 	m_BGground->Render();
 }
@@ -379,6 +379,7 @@ void GameFramework::BGRender()
 void GameFramework::BGUpdate(float dt)
 {
 	m_BGsky->Update(dt);
+	m_BGmoon->Update(dt);
 	m_BGmountain->Update(dt);
 	m_BGground->Update(dt);
 }

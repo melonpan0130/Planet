@@ -8,6 +8,7 @@ class CPayloadManager
 {
 protected:
 	CPayload* m_Payload[PAYLOAD_MAX];
+
 	int homing[5] = { -1 };
 
 public:
@@ -26,6 +27,7 @@ public:
 	void OnFire(const D3DXVECTOR3& pos);
 	void OnFire(const D3DXVECTOR3& pos, const D3DXVECTOR3& dir);
 	void OnFire3(const D3DXVECTOR3& pos);
+
 	void OnHoming(const D3DXVECTOR3& pos, const D3DXVECTOR3& target);
 	void HomingUpdate(float dt
 		, const D3DXVECTOR3& target);
